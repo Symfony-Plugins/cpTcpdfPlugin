@@ -127,6 +127,7 @@ class TCPDFX extends FPDI {
     $this->AddPage();
     $this->generate();
     parent::Output($name ? $name : $this->processName($this->getName()), $dest);
+    header_remove('Content-Length');
   }
 
   public function processName($name) { return $name; }
