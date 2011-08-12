@@ -1,4 +1,6 @@
 <?php
+$error_reporting = error_reporting(E_ALL);
+
 class TCPDFX extends FPDI {
 
   protected $name = 'doc.pdf';
@@ -695,3 +697,5 @@ class TCPDFX extends FPDI {
   }
   
 }
+
+error_reporting($error_reporting);
