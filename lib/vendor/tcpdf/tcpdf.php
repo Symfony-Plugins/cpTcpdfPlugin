@@ -1,9 +1,9 @@
 <?php
 //============================================================+
 // File name   : tcpdf.php
-// Version     : 5.9.103
+// Version     : 5.9.108
 // Begin       : 2002-08-03
-// Last Update : 2011-07-16
+// Last Update : 2011-08-09
 // Author      : Nicola Asuni - Tecnick.com S.r.l - Via Della Pace, 11 - 09044 - Quartucciu (CA) - ITALY - www.tecnick.com - info@tecnick.com
 // License     : http://www.tecnick.com/pagefiles/tcpdf/LICENSE.TXT GNU-LGPLv3 + YOU CAN'T REMOVE ANY TCPDF COPYRIGHT NOTICE OR LINK FROM THE GENERATED PDF DOCUMENTS.
 // -------------------------------------------------------------------
@@ -136,7 +136,7 @@
  * Tools to encode your unicode fonts are on fonts/utils directory.</p>
  * @package com.tecnick.tcpdf
  * @author Nicola Asuni
- * @version 5.9.103
+ * @version 5.9.108
  */
 
 // Main configuration file. Define the K_TCPDF_EXTERNAL_CONFIG constant to skip this file.
@@ -148,7 +148,7 @@ require_once(dirname(__FILE__).'/config/tcpdf_config.php');
  * TCPDF project (http://www.tcpdf.org) has been originally derived in 2002 from the Public Domain FPDF class by Olivier Plathey (http://www.fpdf.org), but now is almost entirely rewritten.<br>
  * @package com.tecnick.tcpdf
  * @brief PHP class for generating PDF documents without requiring external extensions.
- * @version 5.9.103
+ * @version 5.9.108
  * @author Nicola Asuni - info@tecnick.com
  */
 class TCPDF {
@@ -159,7 +159,7 @@ class TCPDF {
 	 * Current TCPDF version.
 	 * @private
 	 */
-	private $tcpdf_version = '5.9.103';
+	private $tcpdf_version = '5.9.108';
 
 	// Protected properties
 
@@ -7538,7 +7538,7 @@ class TCPDF {
 			// GD image handler function
 			$gdfunction = 'imagecreatefrom'.$type;
 			$info = false;
-			if ((method_exists($this, $mtd)) AND (!($resize AND function_exists($gdfunction)))) {
+			if ((method_exists($this, $mtd)) AND (!($resize AND (function_exists($gdfunction) OR extension_loaded('imagick'))))) {
 				// TCPDF image functions
 				$info = $this->$mtd($file);
 				if ($info == 'pngalpha') {
@@ -8608,20 +8608,19 @@ class TCPDF {
 	 * @param $page (string) Page content.
 	 * @param $replace (array) Array of replacements (array keys are replacement strings, values are alias arrays).
 	 * @param $diff (int) If passed, this will be set to the total char number difference between alias and replacements.
-	 * @return replaced page content.
+	 * @return replaced page content and updated $diff parameter as array.
 	 * @protected
 	 */
-	protected function replacePageNumAliases($page, $replace, &$diff=0) {
+	protected function replacePageNumAliases($page, $replace, $diff=0) {
 		foreach ($replace as $rep) {
 			foreach ($rep[3] as $a) {
-				$count = 0;
-				$page = str_replace($a, $rep[0], $page, $count);
-				if ($count > 0) {
+				if (strpos($page, $a) !== false) {
+					$page = str_replace($a, $rep[0], $page);
 					$diff += ($rep[2] - $rep[1]);
 				}
 			}
 		}
-		return $page;
+		return array($page, $diff);
 	}
 
 	/**
@@ -8707,7 +8706,7 @@ class TCPDF {
 				$replace[] = array($ptga, $ptg_num_chars, 7, $pnalias[2]['a']);
 				$replace[] = array($pngu, $png_num_chars, 9, $pnalias[3]['u']);
 				$replace[] = array($pnga, $png_num_chars, 7, $pnalias[3]['a']);
-				$temppage = $this->replacePageNumAliases($temppage, $replace, $gdiff);
+				list($temppage, $gdiff) = $this->replacePageNumAliases($temppage, $replace, $gdiff);
 			}
 			// replace page numbers
 			$replace = array();
@@ -8715,7 +8714,7 @@ class TCPDF {
 			$replace[] = array($ptpa, $ptp_num_chars, 7, $pnalias[0]['a']);
 			$replace[] = array($pnpu, $pnp_num_chars, 9, $pnalias[1]['u']);
 			$replace[] = array($pnpa, $pnp_num_chars, 7, $pnalias[1]['a']);
-			$temppage = $this->replacePageNumAliases($temppage, $replace, $pdiff);
+			list($temppage, $pdiff) = $this->replacePageNumAliases($temppage, $replace, $pdiff);
 			// replace right shift alias
 			$temppage = $this->replaceRightShiftPageNumAliases($temppage, $pnalias[4], max($pdiff, $gdiff));
 			// replace EPS marker
@@ -10925,7 +10924,23 @@ class TCPDF {
 					}
 					$out .= ' >>';
 				}
-				$out .= ' >>';
+				$out .= ' >>'; //end resources
+				if (isset($data['group']) AND ($data['group'] !== false)) {
+					// set transparency group
+					$out .= ' /Group << /Type /Group /S /Transparency';
+					if (is_array($data['group'])) {
+						if (isset($data['group']['CS']) AND !empty($data['group']['CS'])) {
+							$out .= ' /CS /'.$data['group']['CS'];
+						}
+						if (isset($data['group']['I'])) {
+							$out .= ' /I /'.($data['group']['I']===true?'true':'false');
+						}
+						if (isset($data['group']['K'])) {
+							$out .= ' /K /'.($data['group']['K']===true?'true':'false');
+						}
+					}
+					$out .= ' >>';
+				}
 				$stream = $this->_getrawstream($stream, $data['n']);
 				$out .= ' /Length '.strlen($stream);
 				$out .= ' >>';
@@ -15877,7 +15892,7 @@ class TCPDF {
 		$opt['t'] = $name;
 		$opt['opt'] = array($onvalue);
 		if ($checked) {
-			$opt['v'] = array('/0');
+			$opt['v'] = array('/Yes');
 			$opt['as'] = 'Yes';
 		} else {
 			$opt['v'] = array('/Off');
@@ -25143,15 +25158,16 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 	 * An XObject Template is a PDF block that is a self-contained description of any sequence of graphics objects (including path objects, text objects, and sampled images).
 	 * An XObject Template may be painted multiple times, either on several pages or at several locations on the same page and produces the same results each time, subject only to the graphics state at the time it is invoked.
 	 * Note: X,Y coordinates will be reset to 0,0.
-	 * @param $w (int) Template width in user units (empty string or zero = page width less margins)
-	 * @param $h (int) Template height in user units (empty string or zero = page height less margins)
+	 * @param $w (int) Template width in user units (empty string or zero = page width less margins).
+	 * @param $h (int) Template height in user units (empty string or zero = page height less margins).
+	 * @param $group (mixed) Set transparency group. Can be a boolean value or an array specifying optional parameters: 'CS' (solour space name), 'I' (boolean flag to indicate isolated group) and 'K' (boolean flag to indicate knockout group).
 	 * @return int the XObject Template ID in case of success or false in case of error.
 	 * @author Nicola Asuni
 	 * @public
 	 * @since 5.8.017 (2010-08-24)
 	 * @see endTemplate(), printTemplate()
 	 */
-	public function startTemplate($w=0, $h=0) {
+	public function startTemplate($w=0, $h=0, $group=false) {
 		if ($this->inxobj) {
 			// we are already inside an XObject template
 			return false;
@@ -25198,6 +25214,8 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 		$this->rMargin = 0;
 		$this->tMargin = 0;
 		$this->bMargin = 0;
+		// set group mode
+		$this->xobjects[$this->xobjid]['group'] = $group;
 		return $this->xobjid;
 	}
 
@@ -25234,7 +25252,7 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 	 * @param $h (int) Height in user units (zero = remaining page height)
 	 * @param $align (string) Indicates the alignment of the pointer next to template insertion relative to template height. The value can be:<ul><li>T: top-right for LTR or top-left for RTL</li><li>M: middle-right for LTR or middle-left for RTL</li><li>B: bottom-right for LTR or bottom-left for RTL</li><li>N: next line</li></ul>
 	 * @param $palign (string) Allows to center or align the template on the current line. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
-	 * @param $fitonpage (boolean) if true the template is resized to not exceed page dimensions.
+	 * @param $fitonpage (boolean) If true the template is resized to not exceed page dimensions.
 	 * @author Nicola Asuni
 	 * @public
 	 * @since 5.8.017 (2010-08-24)
