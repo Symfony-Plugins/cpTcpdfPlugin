@@ -342,18 +342,13 @@ class TCPDFX extends FPDI {
   protected function __row($data, $width, $align = 'C', $border, $font, $font_style, $font_size, $cell_height, $min_height = 0) {
     $x0 = $this->GetX();
     $y0 = $this->GetY();
+    $page0 = $this->getPage();
 
     $x1 = $x0;
 
-    $dimensions = $this->getPageDimensions();
-    if ($y0 + $min_height + $dimensions['bm'] >= $dimensions['hk']) {
-      $this->addPage();
-      $y0 = $this->GetY();
-    }
-
-    // Check row height
-    $height = $this->__row_height($data, $width, $border, $font, $font_style, $font_size, $cell_height, $min_height);
+    $height = $this->__row_height($data, $width, $align, $border, $font, $font_style, $font_size, $cell_height, $min_height); 
     
+    $dimensions = $this->getPageDimensions();
     if ($y0 + $height + $dimensions['bm'] >= $dimensions['hk']) {
       $this->addPage();
       $y0 = $this->GetY();
@@ -373,7 +368,9 @@ class TCPDFX extends FPDI {
                        0,
                        1);
       $x1 += is_array($width) ? $width[$i] : $width;
+      $height = max($height, $this->getY() - $y0);
     }
+    
     $this->SetXY($x0, $y0 + $height);
   }
   
@@ -388,7 +385,59 @@ class TCPDFX extends FPDI {
    * @param int $cell_height
    * @return int
    */
-  protected function __row_height($data, $width, $border, $font, $font_style, $font_size, $cell_height, $min_height = 0) {
+  protected function __row_height($data, $width, $align, $border, $font, $font_style, $font_size, $cell_height, $min_height = 0) {
+    $h = max($cell_height, $min_height);
+    
+    $n = count($data);
+    for ($i = 0; $i < $n; $i++) {
+      $this->startTransaction();
+    
+      $start_y = $this->GetY();
+      $start_page = $this->getPage();
+      
+      $this->SetFont(is_array($font) ? $font[$i] : $font,
+                     is_array($font_style) ? $font_style[$i] : $font_style,
+                     is_array($font_size) ? $font_size[$i] : $font_size);
+      $this->MultiCell(is_array($width) ? $width[$i] : $width,
+                       $h,
+                       $data[$i],
+                       is_array($border) ? $border[$i] : $border,
+                       is_array($align) ? $align[$i] : $align,
+                       0,
+                       1);      
+    
+      $end_y = $this->GetY();
+      $end_page = $this->getPage();
+      
+      // calculate height
+      $height = 0;
+      if ($end_page == $start_page) {
+       	$height = $end_y - $start_y;
+      } 
+      else {
+        for ($page = $start_page; $page <= $end_page; $page++) {
+          $this->setPage($page);
+          if ($page == $start_page) {
+            // first page
+            $height = $this->h - $start_y - $this->bMargin;
+          } 
+          elseif ($page == $end_page) {
+            // last page
+            $height += $end_y - $this->tMargin;
+          } 
+          else {
+            $height += $this->h - $this->tMargin - $this->bMargin;
+          }
+        }
+      }
+      
+      $h = max($height, $h);
+    
+      $this->setPage($start_page);
+      $this->rollbackTransaction(true);
+    }  
+    return $h;
+    /*
     $lines = array();
     $height = array($cell_height, $min_height);
     $n = count($data);
@@ -400,7 +449,7 @@ class TCPDFX extends FPDI {
       $height[] = $this->getStringHeight($w ? $w : $width[$i], $data[$i], false, true, $this->default_cell_padding, $border);
     }
     
-    return max($height);
+    return max($height); */
   }
 
   // @deprecated. Use generateTable instead
