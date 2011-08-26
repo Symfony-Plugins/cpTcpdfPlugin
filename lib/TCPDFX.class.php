@@ -602,7 +602,7 @@ class TCPDFX extends FPDI {
   
   public function getWatermark() { return $this->watermark; }
   
-  public function setWatermark($watermark) { $this->Watermark - $watermark; }
+  public function setWatermark($watermark) { $this->watermark = $watermark; }
 
   protected function addWatermark() {
     $watermark = $this->getWatermark();
