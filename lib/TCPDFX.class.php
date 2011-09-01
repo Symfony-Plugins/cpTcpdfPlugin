@@ -360,13 +360,6 @@ class TCPDFX extends FPDI {
 
     if ($height = 0) {
       $height = $this->__row_height($data, $width, $align, $border, $font, $font_style, $font_size, $cell_height, $min_height);
-    
-      $dimensions = $this->getPageDimensions();
-      if ($y0 + $height + $dimensions['bm'] >= $dimensions['hk']) {
-        $this->addPage();
-        $x1 = $x0;
-        $y0 = $this->GetY();
-      }
     }
         
     $n = count($data);
