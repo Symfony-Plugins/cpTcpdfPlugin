@@ -358,7 +358,7 @@ class TCPDFX extends FPDI {
 
     $x1 = $x0;
 
-    if ($height = 0) {
+    if ($height == 0) {
       $height = $this->__row_height($data, $width, $align, $border, $font, $font_style, $font_size, $cell_height, $min_height);
     }
         
