@@ -285,9 +285,22 @@ class TCPDFX extends FPDI {
     }
 
     foreach ($data as $row) {
+      // add a new page if necessary
+      $height = $this->__row_height($row, $width, $align, $border, $font, $font_style, $font_size, $cell_height, $min_row_height);
+      $dimensions = $this->getPageDimensions();
+      if ($this->getY() + $height + $dimensions['bm'] >= $dimensions['hk']) {
+        $this->addPage();
+        // reprint the headers
+        foreach ($headers as $h) {
+          $this->__row($h['data'], $h['width'], $h['align'], $h['border'],
+                       $h['font'], $h['font_style'], $h['font_size'],
+                       $h['cell_height'], $h['min_row_height']);
+        }
+      } 
+
       $this->__row($row, $width, $align, $border,
                    $font, $font_style, $font_size,
-                   $cell_height, $min_row_height);
+                   $cell_height, $min_row_height, $height);
     }
 
     // print footers
@@ -339,20 +352,21 @@ class TCPDFX extends FPDI {
     return $height;
   }
 
-  protected function __row($data, $width, $align = 'C', $border, $font, $font_style, $font_size, $cell_height, $min_height = 0) {
+  protected function __row($data, $width, $align = 'C', $border, $font, $font_style, $font_size, $cell_height, $min_height = 0, $height = 0) {
     $x0 = $this->GetX();
     $y0 = $this->GetY();
-    $page0 = $this->getPage();
 
     $x1 = $x0;
 
-    $height = $this->__row_height($data, $width, $align, $border, $font, $font_style, $font_size, $cell_height, $min_height);
+    if ($height = 0) {
+      $height = $this->__row_height($data, $width, $align, $border, $font, $font_style, $font_size, $cell_height, $min_height);
     
-    $dimensions = $this->getPageDimensions();
-    if ($y0 + $height + $dimensions['bm'] >= $dimensions['hk']) {
-      $this->addPage();
-      $x1 = $x0;
-      $y0 = $this->GetY();
+      $dimensions = $this->getPageDimensions();
+      if ($y0 + $height + $dimensions['bm'] >= $dimensions['hk']) {
+        $this->addPage();
+        $x1 = $x0;
+        $y0 = $this->GetY();
+      }
     }
         
     $n = count($data);
