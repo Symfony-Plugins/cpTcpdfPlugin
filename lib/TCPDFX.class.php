@@ -289,7 +289,9 @@ class TCPDFX extends FPDI {
       $height = $this->__row_height($row, $width, $align, $border, $font, $font_style, $font_size, $cell_height, $min_row_height);
       $dimensions = $this->getPageDimensions();
       if ($this->getY() + $height + $dimensions['bm'] >= $dimensions['hk']) {
+        $x0 = $this->GetX();
         $this->addPage();
+        $this->SetX($x0);
         // reprint the headers
         foreach ($headers as $h) {
           $this->__row($h['data'], $h['width'], $h['align'], $h['border'],
