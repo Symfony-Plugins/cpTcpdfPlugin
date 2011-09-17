@@ -270,18 +270,20 @@ class TCPDFX extends FPDI {
    * 'font_size' => font size of header cells. Required.
    * 'cell_height' => cell height. Required.
    * 'min_row_height' => minimum row height of header row (default 0)
+   * 'fill' => fill values
    * All values except for keys 'data' and 'min_row_height' are either single values
    * (applying to all header cells) or an array containing values for each cell.
    */
   public function generateTable($data, $width, $align = 'L', $border, $font, $font_style, $font_size,
                                 $cell_height, $min_row_height = 0,
-                                $headers = array(), $footers = array()) {
+                                $headers = array(), $footers = array(),
+                                $fill = 0) {
 
     // print headers
     foreach ($headers as $h) {
       $this->__row($h['data'], $h['width'], $h['align'], $h['border'],
                    $h['font'], $h['font_style'], $h['font_size'],
-                   $h['cell_height'], $h['min_row_height']);
+                   $h['cell_height'], $h['min_row_height'], 0, $h['fill']);
     }
 
     foreach ($data as $row) {
@@ -296,13 +298,13 @@ class TCPDFX extends FPDI {
         foreach ($headers as $h) {
           $this->__row($h['data'], $h['width'], $h['align'], $h['border'],
                        $h['font'], $h['font_style'], $h['font_size'],
-                       $h['cell_height'], $h['min_row_height']);
+                       $h['cell_height'], $h['min_row_height'], 0, $h['fill']);
         }
       } 
 
       $this->__row($row, $width, $align, $border,
                    $font, $font_style, $font_size,
-                   $cell_height, $min_row_height, $height);
+                   $cell_height, $min_row_height, $height, $fill);
     }
 
     // print footers
@@ -354,7 +356,7 @@ class TCPDFX extends FPDI {
     return $height;
   }
 
-  protected function __row($data, $width, $align = 'C', $border, $font, $font_style, $font_size, $cell_height, $min_height = 0, $height = 0) {
+  protected function __row($data, $width, $align = 'C', $border, $font, $font_style, $font_size, $cell_height, $min_height = 0, $height = 0, $fill = 0) {
     $x0 = $this->GetX();
     $y0 = $this->GetY();
 
@@ -376,7 +378,7 @@ class TCPDFX extends FPDI {
                        $data[$i],
                        is_array($border) ? $border[$i] : $border,
                        is_array($align) ? $align[$i] : $align,
-                       0,
+                       is_array($fill) ? $fill[$i] : $fill,
                        1);
       
         $x1 += is_array($width) ? $width[$i] : $width;
