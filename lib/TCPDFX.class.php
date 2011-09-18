@@ -575,7 +575,7 @@ class TCPDFX extends FPDI {
   public function Header() {
     $this->addLogo();
     $this->addLetterhead();
-    $this->addWatermark();
+//    $this->addWatermark();
     
     if ($this->getShowPageHeader()) {
       $this->SetY(max($this->GetY(), $this->getHeaderMargin()));
@@ -587,7 +587,9 @@ class TCPDFX extends FPDI {
   
   protected function printPageHeader() {}
   
-  public function Footer() {}
+  public function Footer() {
+    $this->addWatermark();
+  }
 
   public function getLogo() { return $this->logo; }
   
