@@ -283,7 +283,8 @@ class TCPDFX extends FPDI {
     foreach ($headers as $h) {
       $this->__row($h['data'], $h['width'], $h['align'], $h['border'],
                    $h['font'], $h['font_style'], $h['font_size'],
-                   $h['cell_height'], $h['min_row_height'], 0, $h['fill']);
+                   $h['cell_height'], $h['min_row_height'], 0, 
+                   isset($h['fill']) ? $h['fill'] : 0);
     }
 
     foreach ($data as $row) {
@@ -298,7 +299,8 @@ class TCPDFX extends FPDI {
         foreach ($headers as $h) {
           $this->__row($h['data'], $h['width'], $h['align'], $h['border'],
                        $h['font'], $h['font_style'], $h['font_size'],
-                       $h['cell_height'], $h['min_row_height'], 0, $h['fill']);
+                       $h['cell_height'], $h['min_row_height'], 0, 
+                       isset($h['fill']) ? $h['fill'] : 0);
         }
       } 
 
@@ -311,7 +313,8 @@ class TCPDFX extends FPDI {
     foreach ($footers as $f) {
       $this->__row($f['data'], $f['width'], $f['align'], $f['border'],
                    $f['font'], $f['font_style'], $f['font_size'],
-                   $f['cell_height'], $f['min_row_height']);
+                   $f['cell_height'], $f['min_row_height'], 
+                   isset($h['fill']) ? $h['fill'] : 0);
     }
   }
   
