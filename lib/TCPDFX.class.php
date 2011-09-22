@@ -314,7 +314,7 @@ class TCPDFX extends FPDI {
       $this->__row($f['data'], $f['width'], $f['align'], $f['border'],
                    $f['font'], $f['font_style'], $f['font_size'],
                    $f['cell_height'], $f['min_row_height'], 
-                   isset($h['fill']) ? $h['fill'] : 0);
+                   isset($f['fill']) ? $f['fill'] : 0);
     }
   }
   
