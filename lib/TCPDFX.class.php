@@ -177,12 +177,9 @@ class TCPDFX extends FPDI {
   }
 
   public function printTitle($title) {
-    $font = $this->getFontFamily();
-    $style = $this->getFontStyle();
-    $size = $this->getFontSize();
     $this->SetFont($this->title_font, $this->title_style, $this->title_size);
     $this->MultiCell(0, $this->title_cell_height, $title, 0, $this->title_align, 0, 1);
-    $this->SetFont($font, $style, $size);
+    $this->resetFont();
   }
 
   public function printText($text, $multiline = false) {
