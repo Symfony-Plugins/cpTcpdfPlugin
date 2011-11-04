@@ -336,21 +336,21 @@ class TCPDFX extends FPDI {
                                   
     $height = 0;
     foreach ($headers as $h) {
-      $height += $this->__row_height($h['data'], $h['width'], 
+      $height += $this->__row_height($h['data'], $h['width'], $h['align'],
                                      $h['border'], $h['font'], 
                                      $h['font_style'], $h['font_size'], 
                                      $h['cell_height'], $h['min_row_height']);
     }
 
     foreach ($data as $row) {
-      $height += $this->__row_height($row, $width, 
+      $height += $this->__row_height($row, $width, '',
                                      $border, $font, 
                                      $font_style, $font_size, 
                                      $cell_height, $min_row_height);
     }
 
     foreach ($footers as $f) {
-      $height += $this->__row_height($f['data'], $f['width'], 
+      $height += $this->__row_height($f['data'], $f['width'], $f['align'], 
                                      $f['border'], $f['font'], 
                                      $f['font_style'], $f['font_size'], 
                                      $f['cell_height'], $f['min_row_height']);
