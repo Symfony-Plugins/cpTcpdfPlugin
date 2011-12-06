@@ -80,7 +80,7 @@ class TCPDFX extends FPDI {
     // Set paper format
     $this->setPaperFormat();
     /* Set this to false in various subclasses to embed fonts instead of subsetting them */	
-    $this->SetFontSubsetting(true);
+    $this->SetFontSubsetting(false);
   }
 
   protected function init() {
