@@ -196,10 +196,10 @@ class TCPDFX extends FPDI {
 
   // MultiCell with bullet
   public function MultiCellBlt($w, $h, $blt, $txt, $border = 0, $align = 'J', $fill = 0, $ln = 1) {
-    $font = $this->FontFamily;
-    $style = $this->FontStyle;
-    $size = $this->getFontSizePt();
-    $this->setFont('zapfdingbats', '', $size);
+  //  $font = $this->FontFamily;
+  //  $style = $this->FontStyle;
+  //  $size = $this->getFontSizePt();
+    // $this->setFont('zapfdingbats', '', $size);
 
     //Get bullet width including margins
     $paddings = $this->getCellPaddings();
@@ -210,8 +210,9 @@ class TCPDFX extends FPDI {
 
 
     //Output bullet
-    $this->Cell($blt_width, $h, $this->unichr(0x0076) , 0, '', $fill);
-    $this->SetFont($font, $style, $size);
+//    $this->Cell($blt_width, $h, $this->unichr(0x0076) , 0, '', $fill);
+    $this->Cell($blt_width, $h, $this->unichr(0x2022) , 0, '', $fill);
+//    $this->SetFont($font, $style, $size);
     //Output text
     $this->MultiCell($w - $blt_width, $h, $txt, $border, $align, $fill, 1);
 
