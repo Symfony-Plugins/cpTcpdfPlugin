@@ -96,7 +96,7 @@ class TCPDFX extends FPDI {
     $this->setPrintHeader(true);
     $this->setPrintFooter(true);
     $this->setHeaderFont(array($this->header_font_family, $this->header_font_style, $this->header_font_size));
-    $this->setFooterFont(array($this->footer_font_family, $this->footer_font_style, $this->footer_font_size));
+//    $this->setFooterFont(array($this->footer_font_family, $this->footer_font_style, $this->footer_font_size));
     $this->SetHeaderMargin($this->header_margin);
     $this->SetFooterMargin($this->footer_margin);
     $this->SetFont($this->font, $this->font_style, $this->font_size);
@@ -592,8 +592,14 @@ class TCPDFX extends FPDI {
   
   public function Footer() {
     $this->addWatermark();
+		$cur_y = $this->y;
+    $this->printPageFooter();
+		$this->SetY($cur_y);
   }
 
+  
+  public function printPageFooter() {}
+  
   public function getLogo() { return $this->logo; }
   
   public function setLogo($logo) { $this->logo = $logo; }
@@ -624,9 +630,6 @@ class TCPDFX extends FPDI {
     $watermark = $this->getWatermark();
     if (empty($watermark)) { return; }
     $color = $this->TextColor;
-    $font = $this->getFontFamily();
-    $style = $this->getFontStyle();
-    $size = $this->getFontSize();
     $x = $this->GetX();
     $y = $this->getY();
     $this->SetFont($this->watermark_font, $this->watermark_style, $this->watermark_size);
@@ -642,7 +645,7 @@ class TCPDFX extends FPDI {
     $this->StopTransform();
 
     $this->SetXY($x, $y);
-    $this->SetFont($font, $style, $size);
+    $this->resetFont($font, $style, $size);
     $this->TextColor = $color;
   }
 
