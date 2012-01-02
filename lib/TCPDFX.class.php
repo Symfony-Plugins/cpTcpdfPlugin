@@ -645,7 +645,7 @@ class TCPDFX extends FPDI {
     $this->StopTransform();
 
     $this->SetXY($x, $y);
-    $this->resetFont($font, $style, $size);
+    $this->resetFont();
     $this->TextColor = $color;
   }
 
