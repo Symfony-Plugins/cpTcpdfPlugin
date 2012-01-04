@@ -591,10 +591,10 @@ class TCPDFX extends FPDI {
   protected function printPageHeader() {}
   
   public function Footer() {
-    $this->addWatermark();
-		$cur_y = $this->y;
+    $cur_y = $this->y;
     $this->printPageFooter();
-		$this->SetY($cur_y);
+    $this->SetY($cur_y);
+    $this->addWatermark();
   }
 
   
