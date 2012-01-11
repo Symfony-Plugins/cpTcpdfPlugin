@@ -634,11 +634,17 @@ class TCPDFX extends FPDI {
     $y = $this->getY();
     $this->SetFont($this->watermark_font, $this->watermark_style, $this->watermark_size);
     $this->SetTextColorArray($this->watermark_color);
-    $this->setX(0);
+    $this->setXY($this->lMargin, $this->h - $this->bMargin);
     $this->StartTransform();
-    $this->TranslateY($this->h - $y - $this->bMargin);
-    $this->Rotate(60);
-    $this->MultiCell($this->w * 1.5,
+    if ($this->CurOrientation == 'P') {
+      $this->Rotate(60);
+      $w = $this->w * 1.5;
+    }
+    else {
+      $this->Rotate(30);
+      $w = $this->h * 1.5;
+    }
+    $this->MultiCell($w,
                      $this->watermark_cell,
                      $watermark,
                      0, 'C', 0, 0);
